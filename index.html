@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05060a">
+<meta name="description" content="새벽 2시, 봉인된 경비실 — 추리 방탈출 텍스트 어드벤처">
+<title>새벽 2시, 봉인된 경비실 · 추리 방탈출</title>
+<style>
+:root{
+  --bg:#05060a; --panel:#0e1219; --panel2:#141a25;
+  --line:#212a38; --txt:#e9eef6; --dim:#8a97aa; --dim2:#5f6b7d;
+  --acc:#57e2b2; --amber:#efb45c; --red:#ef6b83; --uv:#c39bff;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(120% 60% at 50% -10%, rgba(87,226,178,.08), transparent 62%),
+    radial-gradient(90% 50% at 85% 108%, rgba(239,180,92,.05), transparent 60%),
+    var(--bg);
+  color:var(--txt);
+  font-family:"Apple SD Gothic Neo",-apple-system,BlinkMacSystemFont,"Noto Sans KR","Malgun Gothic","맑은 고딕",system-ui,sans-serif;
+  font-size:15px;line-height:1.62;letter-spacing:-.012em;
+  min-height:100vh;min-height:100dvh;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer;border:0;background:none}
+h1,h2,h3,p{margin:0}
+em{font-style:normal;color:var(--amber)}
+.hidden{display:none !important}
+
+#app{max-width:600px;margin:0 auto;padding:0 0 calc(112px + env(safe-area-inset-bottom));min-height:100dvh}
+
+/* ───────── HUD ───────── */
+#hud{
+  position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;
+  padding:10px 14px calc(10px + env(safe-area-inset-top));
+  background:linear-gradient(180deg,rgba(5,6,10,.96),rgba(5,6,10,.78));
+  backdrop-filter:blur(10px);border-bottom:1px solid rgba(33,42,56,.7);
+}
+.hudL{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc);animation:blink 2.4s infinite;flex:none}
+.hudT{font-size:12.5px;letter-spacing:.22em;color:var(--dim);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hudR{display:flex;align-items:center;gap:6px;flex:none}
+.stat{
+  font-variant-numeric:tabular-nums;font-size:12px;color:var(--acc);
+  border:1px solid rgba(87,226,178,.28);border-radius:999px;padding:3px 9px;background:rgba(87,226,178,.07);
+  font-feature-settings:"tnum"
+}
+@media(max-width:359px){
+  #hud{padding-left:10px;padding-right:10px;gap:6px}
+  #hud .pill{padding:5px 8px;font-size:12px}
+  #hud .stat{padding:3px 7px}
+  #btnSound{display:none}
+  .objs{gap:7px}
+  .obj{padding:11px 10px}
+}
+.pill{
+  font-size:12.5px;color:var(--dim);border:1px solid var(--line);border-radius:999px;
+  padding:5px 10px;background:var(--panel);transition:.16s;white-space:nowrap
+}
+.pill:active{transform:scale(.95);background:var(--panel2);color:var(--txt)}
+
+/* ───────── SCENE ───────── */
+#stage{padding:14px 14px 0}
+.art{
+  position:relative;height:124px;border-radius:16px;overflow:hidden;border:1px solid var(--line);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(87,226,178,.10), transparent 60%),
+    linear-gradient(180deg,#0a0e15,#06080c);
+}
+.art::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px);
+  opacity:.35;animation:scan 8s linear infinite;
+}
+.stamp{
+  position:absolute;left:12px;top:10px;font-size:10px;letter-spacing:.2em;color:rgba(87,226,178,.75);
+  font-variant-numeric:tabular-nums
+}
+.rec{position:absolute;right:12px;top:10px;font-size:10px;letter-spacing:.16em;color:rgba(239,107,131,.85);display:flex;align-items:center;gap:5px}
+.rec i{width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1.6s infinite;display:block}
+.vDoor{position:absolute;right:34px;bottom:0;width:64px;height:86px;border:1px solid rgba(87,226,178,.28);border-bottom:0;border-radius:4px 4px 0 0;background:linear-gradient(180deg,rgba(87,226,178,.05),transparent)}
+.vDoor::after{content:"";position:absolute;right:6px;top:34px;width:3px;height:3px;border-radius:50%;background:var(--red);box-shadow:0 0 6px var(--red)}
+.vLamp{position:absolute;left:50%;top:14px;transform:translateX(-50%);width:96px;height:3px;border-radius:3px;background:rgba(233,238,246,.5);box-shadow:0 0 24px 5px rgba(87,226,178,.28);animation:flick 6s infinite}
+.vShelf{position:absolute;left:20px;bottom:26px;width:90px;height:2px;background:rgba(233,238,246,.22);box-shadow:0 -22px 0 rgba(233,238,246,.16),0 -44px 0 rgba(233,238,246,.13)}
+.vBox{position:absolute;left:34px;bottom:28px;width:26px;height:16px;border:1px solid rgba(239,180,92,.42);border-radius:2px}
+.vStair{position:absolute;left:22px;bottom:0;width:120px;height:60px;
+  background:repeating-linear-gradient(90deg,rgba(87,226,178,.16) 0 2px,transparent 2px 18px),
+  repeating-linear-gradient(0deg,rgba(87,226,178,.16) 0 2px,transparent 2px 15px);
+  transform:skewY(-18deg);opacity:.7}
+
+.sceneHead{display:flex;align-items:baseline;gap:8px;margin:16px 2px 4px}
+.sceneHead h2{font-size:19px;font-weight:700;letter-spacing:-.02em}
+.sceneHead span{font-size:11px;letter-spacing:.14em;color:var(--dim2);text-transform:uppercase}
+.desc{color:var(--dim);font-size:13.5px;margin:2px 2px 14px;line-height:1.7}
+
+/* ───────── OBJECTS ───────── */
+.objs{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.obj{
+  position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:3px;
+  text-align:left;padding:13px 12px 12px;border-radius:14px;
+  border:1px solid var(--line);background:linear-gradient(180deg,var(--panel2),var(--panel));
+  transition:transform .14s,border-color .16s,background .16s;
+}
+.obj:active{transform:scale(.975);border-color:rgba(87,226,178,.45)}
+.obj .oi{font-size:20px;line-height:1.2;filter:grayscale(.15)}
+.obj .on{font-size:13.5px;font-weight:600}
+.obj .ob{font-size:10.5px;letter-spacing:.06em;color:var(--dim2)}
+.obj .ob.lock{color:var(--red)}
+.obj .ob.ok{color:var(--acc)}
+.obj:disabled{opacity:.45}
+
+.exits{margin:16px 0 4px;display:flex;flex-direction:column;gap:9px}
+.exitBtn{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 15px;border-radius:14px;border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(87,226,178,.08),rgba(87,226,178,.02));
+  font-size:14px;font-weight:600;transition:transform .14s
+}
+.exitBtn:active{transform:scale(.98)}
+.exitBtn .arrow{color:var(--acc);font-size:15px}
+
+.choice{
+  display:block;width:100%;text-align:left;padding:16px 16px;border-radius:16px;
+  border:1px solid rgba(87,226,178,.26);background:linear-gradient(180deg,rgba(87,226,178,.09),rgba(87,226,178,.02));
+  font-size:14.5px;font-weight:600;line-height:1.5;transition:transform .14s
+}
+.choice:active{transform:scale(.98)}
+.choice small{display:block;font-weight:400;font-size:12px;color:var(--dim);margin-top:4px;letter-spacing:0}
+
+/* ───────── INVENTORY ───────── */
+#invBar{
+  position:fixed;left:0;right:0;bottom:0;z-index:25;
+  padding:9px 14px calc(10px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,rgba(5,6,10,.55),rgba(5,6,10,.97) 40%);
+  backdrop-filter:blur(12px);border-top:1px solid rgba(33,42,56,.8)
+}
+.invWrap{max-width:600px;margin:0 auto}
+.invLabel{font-size:10px;letter-spacing:.22em;color:var(--dim2);margin:0 2px 6px;text-transform:uppercase}
+.inv{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.inv::-webkit-scrollbar{display:none}
+.chip{
+  flex:none;display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:11px;
+  border:1px solid var(--line);background:var(--panel2);font-size:12.5px;transition:transform .14s
+}
+.chip:active{transform:scale(.95);border-color:rgba(87,226,178,.45)}
+.chip .ci{font-size:14px}
+.chip.empty{color:var(--dim2);border-style:dashed;background:none}
+
+/* ───────── MODAL ───────── */
+.modal{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;background:rgba(3,4,7,.72);backdrop-filter:blur(3px);animation:fade .18s ease}
+.sheet{
+  width:100%;max-width:600px;max-height:86vh;max-height:86dvh;overflow-y:auto;overscroll-behavior:contain;
+  border-radius:22px 22px 0 0;border:1px solid var(--line);border-bottom:0;
+  background:linear-gradient(180deg,#111722,#0b0e14 60%);
+  padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:0 -20px 60px rgba(0,0,0,.6);
+}
+.sheet.in{animation:rise .24s cubic-bezier(.2,.9,.3,1)}
+@media(min-width:620px){
+  .modal{align-items:center;padding:24px}
+  .sheet{border-radius:20px;border-bottom:1px solid var(--line);max-height:80dvh}
+}
+.sheetHead{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sheetIcon{font-size:22px;line-height:1}
+.sheetHead h3{font-size:17px;font-weight:700;flex:1;letter-spacing:-.02em}
+.x{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--dim);font-size:13px;display:flex;align-items:center;justify-content:center;flex:none}
+.sheetBody{font-size:14px;color:#cfd8e5;line-height:1.72}
+.sheetBody p+p{margin-top:10px}
+.sheetBody .dim{color:var(--dim);font-size:13px}
+.sheetBody .q{
+  margin:12px 0;padding:10px 13px;border-left:2px solid var(--amber);
+  background:rgba(239,180,92,.07);border-radius:0 10px 10px 0;color:#f0dcbb;font-size:13.5px
+}
+.sheetBody .doc{margin:12px 0;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.02)}
+.sheetBody .doc h4{margin:0 0 5px;font-size:12px;letter-spacing:.14em;color:var(--dim);font-weight:600;text-transform:uppercase}
+.sheetBody .doc p{font-size:13.5px;color:#cfd8e5}
+.sheetBody ul{margin:10px 0 0;padding-left:18px;color:var(--dim);font-size:13.5px}
+.sheetBody li{margin:4px 0}
+.uv{
+  margin:14px 0 4px;text-align:center;font-variant-numeric:tabular-nums;
+  font-family:"SF Mono",Menlo,Consolas,monospace;font-size:34px;letter-spacing:.32em;
+  color:#e6d6ff;text-shadow:0 0 18px rgba(195,155,255,.9),0 0 42px rgba(195,155,255,.45);
+  animation:glowIn .6s ease
+}
+.uvNote{text-align:center;font-size:11.5px;letter-spacing:.2em;color:rgba(195,155,255,.65);text-transform:uppercase}
+
+.sheetFoot{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.btn{
+  width:100%;padding:13px 16px;border-radius:13px;font-size:14px;font-weight:600;text-align:center;
+  border:1px solid rgba(87,226,178,.34);background:linear-gradient(180deg,rgba(87,226,178,.14),rgba(87,226,178,.05));
+  color:#d9fff2;transition:transform .14s
+}
+.btn:active{transform:scale(.98)}
+.btn.ghost{border-color:var(--line);background:var(--panel);color:var(--dim);font-weight:500}
+.btn.danger{border-color:rgba(239,107,131,.4);background:rgba(239,107,131,.09);color:#ffd7de}
+
+/* ───────── KEYPAD ───────── */
+.padDisp{display:flex;justify-content:center;gap:10px;margin:6px 0 16px}
+.cell{
+  width:44px;height:52px;border-radius:10px;border:1px solid var(--line);background:#0a0e15;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  font-variant-numeric:tabular-nums;color:var(--acc);text-shadow:0 0 12px rgba(87,226,178,.5)
+}
+.cell.on{border-color:rgba(87,226,178,.55);background:rgba(87,226,178,.08)}
+.padGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.key{
+  padding:16px 0;border-radius:12px;border:1px solid var(--line);
+  background:linear-gradient(180deg,#161c27,#0f141d);font-size:19px;color:var(--txt);
+  font-variant-numeric:tabular-nums;transition:transform .1s,background .1s
+}
+.key:active{transform:scale(.95);background:#1c2431}
+.key.ok{color:#d9fff2;border-color:rgba(87,226,178,.4);background:rgba(87,226,178,.12);font-size:15px;font-weight:700}
+.key.del{color:var(--dim);font-size:16px}
+.padErr{margin-top:12px;text-align:center;font-size:12.5px;color:var(--red);letter-spacing:.02em}
+.shake{animation:shake .34s}
+
+/* ───────── INTRO / ENDING ───────── */
+.overlay{
+  position:fixed;inset:0;z-index:80;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:calc(26px + env(safe-area-inset-top)) 22px 30px;background:
+    radial-gradient(100% 70% at 50% 0%, rgba(87,226,178,.10), transparent 60%),
+    linear-gradient(180deg,#05060a,#04050a);
+  animation:fade .3s ease
+}
+.card{
+  width:100%;max-width:470px;margin:0 auto;text-align:left;
+  min-height:calc(100vh - 56px);
+  min-height:calc(100dvh - 56px - env(safe-area-inset-top));
+  display:flex;flex-direction:column;justify-content:center
+}
+body.lock{overflow:hidden}
+.kicker{font-size:10.5px;letter-spacing:.34em;color:var(--acc);text-transform:uppercase;margin-bottom:14px}
+.overlay h1{font-size:27px;line-height:1.32;font-weight:800;letter-spacing:-.035em}
+.overlay h1 span{display:block;color:var(--acc);font-size:13px;letter-spacing:.3em;font-weight:600;margin-top:10px;text-transform:uppercase}
+.story{margin:20px 0 6px;font-size:14px;color:#c3cddd;line-height:1.85}
+.story p+p{margin-top:10px}
+.rule{
+  margin:18px 0 22px;padding:13px 14px;border-radius:12px;border:1px dashed var(--line);
+  font-size:12.5px;color:var(--dim);line-height:1.7;background:rgba(255,255,255,.02)
+}
+.rule b{color:var(--acc);font-weight:600}
+.endTag{font-size:11px;letter-spacing:.3em;color:var(--acc);text-transform:uppercase}
+.endTitle{font-size:28px;font-weight:800;letter-spacing:-.03em;margin:10px 0 16px}
+.endBody{font-size:14px;line-height:1.9;color:#cfd8e5}
+.endBody p+p{margin-top:12px}
+.stats{display:flex;gap:8px;margin:22px 0 18px;flex-wrap:wrap}
+.statBox{flex:1;min-width:70px;padding:11px 8px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.02);text-align:center}
+.statBox b{display:block;font-size:16px;color:var(--txt);font-variant-numeric:tabular-nums}
+.statBox span{font-size:10px;letter-spacing:.16em;color:var(--dim2);text-transform:uppercase}
+
+/* ───────── TOAST ───────── */
+#toasts{position:fixed;left:0;right:0;bottom:calc(96px + env(safe-area-inset-bottom));z-index:70;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;padding:0 16px}
+.toast{
+  max-width:420px;padding:9px 14px;border-radius:999px;font-size:12.5px;
+  background:rgba(20,26,37,.96);border:1px solid rgba(87,226,178,.32);color:#d9fff2;
+  box-shadow:0 8px 26px rgba(0,0,0,.5);animation:toastIn .22s ease
+}
+.toast.out{animation:toastOut .3s ease forwards}
+
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes flick{0%,96%,100%{opacity:1}97%{opacity:.4}98%{opacity:.85}99%{opacity:.5}}
+@keyframes scan{from{background-position:0 0}to{background-position:0 30px}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{transform:translateY(22px);opacity:.4}to{transform:translateY(0);opacity:1}}
+@keyframes toastIn{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes toastOut{to{transform:translateY(-6px);opacity:0}}
+@keyframes glowIn{from{opacity:0;letter-spacing:.7em}to{opacity:1;letter-spacing:.32em}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none !important}}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header id="hud">
+    <div class="hudL"><span class="dot"></span><span class="hudT">봉인된 경비실</span></div>
+    <div class="hudR">
+      <span class="stat" id="hudClock">02:00</span>
+      <button class="pill" id="btnHint">💡 힌트</button>
+      <button class="pill" id="btnRestart" title="처음부터 다시">⟲</button>
+      <button class="pill" id="btnSound" title="소리">🔊</button>
+    </div>
+  </header>
+
+  <main id="stage">
+    <div class="art" id="sceneArt"></div>
+    <div class="sceneHead"><h2 id="sceneTitle">경비실</h2><span id="sceneSub">B1 · 야간 경비실</span></div>
+    <p class="desc" id="sceneDesc"></p>
+    <div class="objs" id="objects"></div>
+    <div class="exits" id="exits"></div>
+  </main>
+</div>
+
+<footer id="invBar">
+  <div class="invWrap">
+    <div class="invLabel">소지품</div>
+    <div class="inv" id="inv"></div>
+  </div>
+</footer>
+
+<div class="modal hidden" id="modal"><div class="sheet" id="sheet"></div></div>
+<div id="toasts"></div>
+
+<div class="overlay" id="intro">
+  <div class="card">
+    <div class="kicker">Mystery Escape · 네 개의 자물쇠</div>
+    <h1>새벽 2시,<br>봉인된 경비실<span>B1 · SEALED GUARD ROOM</span></h1>
+    <div class="story">
+      <p>11월 16일 새벽 2시. 폐쇄를 앞둔 20년 된 아파트의 지하 경비실.</p>
+      <p>당신은 마지막 야간 근무를 대신 서러 왔다. 마지막 순찰을 마치고 돌아온 순간, 등 뒤에서 철문이 스스로 닫혔다.</p>
+      <p>키패드는 불이 꺼져 있고, 전화기는 죽어 있다. 오전 6시, 첫차가 오기 전까지 이 문은 다시 열리지 않는다.</p>
+    </div>
+    <div class="rule">
+      방을 탭해 조사하고, 단서를 모아 <b>네 개의 자물쇠</b>를 열어라.<br>
+      막히면 언제든 <b>힌트</b>를. 이미지 없이 코드로만 그린 게임이라 인터넷 없이도 실행된다.
+    </div>
+    <button class="btn" id="btnStart">문이 잠겼다 — 시작</button>
+  </div>
+</div>
+
+<noscript><div style="padding:24px;color:#e9eef6;background:#05060a">이 게임을 하려면 브라우저에서 자바스크립트를 켜야 합니다.</div></noscript>
+
+<script>
+"use strict";
+
+/* ══════════════════════════════════════════════
+   1. 기본 상태
+   ══════════════════════════════════════════════ */
+const S = {
+  started: false,
+  min: 0,            // 게임 시작(02:00) 이후 경과 분
+  moves: 0,
+  scene: 'office',
+  inv: [],
+  f: {},             // flags
+  hintCount: 0,
+  hintPos: {},
+  muted: false,
+  ended: null
+};
+
+const CODE_DOOR = '7318';
+const CODE_CABINET = '315';
+
+/* ── 아이템 ───────────────────────────── */
+const ITEMS = {
+  key:     { name:'은색 열쇠', short:'열쇠', icon:'🔑',
+             desc:'작고 무거운 은색 열쇠. 이가 짧고 둥글다. 서랍이나 작은 자물쇠에 맞을 것 같다.' },
+  torch:   { name:'손전등', short:'손전등', icon:'🔦',
+             desc:'손때가 밴 손전등. 옆면 스위치를 두 번 누르면 보랏빛 자외선이 나온다.' },
+  memoA:   { name:'찢어진 메모 (앞)', short:'메모 앞', icon:'📄',
+             desc:'가로로 찢긴 종이. 관리인의 악필로 네 자리 비밀번호 이야기가 적혀 있다. 여백이 이상하게 넓다.' },
+  logbook: { name:'경비 일지', short:'일지', icon:'📒',
+             desc:'표지가 너덜너덜한 경비 일지. 마지막 장까지 거의 다 채워져 있다.' },
+  card:    { name:'출입 카드', short:'출입 카드', icon:'💳',
+             desc:'이름 없이 "야간 경비"라고만 인쇄된 카드. 뒷면 자기띠가 길게 긁혀 있다.' },
+  photo:   { name:'낡은 단체사진', short:'사진', icon:'🖼️',
+             desc:'2003년 11월 16일, 경비실 앞에서 찍은 세 사람. 가운데 얼굴이 손톱으로 긁혀 있다.' },
+  memoB:   { name:'찢어진 메모 (뒤)', short:'메모 뒤', icon:'📃',
+             desc:'세로로 찢긴 종이. 같은 악필로 "뒤의 두 자리"를 감추어 두었다고 적혀 있다.' }
+};
+
+/* ── 방 ───────────────────────────── */
+const SCENES = {
+  office: {
+    title:'경비실', sub:'B1 · 야간 경비실',
+    desc:'형광등 하나가 일정한 간격으로 깜빡인다. 식은 커피 냄새, 젖은 시멘트 냄새. 창밖은 아직 완전히 어둡다.',
+    art:'<div class="vLamp"></div><div class="vDoor"></div><div class="stamp">CAM 03 · B1</div><div class="rec"><i></i>REC</div>',
+    objs:['keypad','clock','drawer','monitor','board','phone'],
+    exits:[{to:'storage', label:'창고로 간다', icon:'🚪'}]
+  },
+  storage: {
+    title:'비품 창고', sub:'B1 · 비품 창고',
+    desc:'먼지가 눈처럼 내려앉은 선반. 발소리가 유난히 크게 울린다. 문 옆에 철제 캐비닛이 서 있다.',
+    art:'<div class="vShelf"></div><div class="vBox"></div><div class="stamp">CAM 02 · B1</div>',
+    objs:['cabinet','shelf'],
+    exits:[{to:'office', label:'경비실로 돌아간다', icon:'↩️'}]
+  }
+};
+
+/* ── 조사 대상 ───────────────────────── */
+const OBJS = {
+  keypad: { name:'출입문 키패드', icon:'🔢', open: openKeypad },
+  clock:  { name:'벽시계', icon:'🕰️', open: openClock },
+  drawer: { name:'책상 서랍', icon:'🗂️', open: openDrawer },
+  monitor:{ name:'CCTV 모니터', icon:'📺', open: openMonitor },
+  board:  { name:'게시판', icon:'📌', open: openBoard },
+  phone:  { name:'전화기', icon:'☎️', open: openPhone },
+  cabinet:{ name:'철제 캐비닛', icon:'🗄️', open: openCabinet },
+  shelf:  { name:'선반', icon:'📦', open: openShelf }
+};
+
+const BADGE = {
+  keypad: () => S.f.doorPowered ? '점등' : '전원 꺼짐',
+  clock:  () => S.f.clockDown ? '내려놓음' : '3시 15분',
+  drawer: () => S.f.drawerOpen ? '열림' : '잠김',
+  monitor:() => S.f.cableFixed ? '화면 켜짐' : '노이즈',
+  board:  () => '',
+  phone:  () => '선 끊김',
+  cabinet:() => S.f.cabinetOpen ? '열림' : '잠김',
+  shelf:  () => S.f.boxTaken ? '뒤적임' : '먼지'
+};
+
+/* ══════════════════════════════════════════════
+   2. 유틸
+   ══════════════════════════════════════════════ */
+const $ = (id) => document.getElementById(id);
+const pad2 = (n) => (n < 10 ? '0' + n : '' + n);
+const has = (id) => S.inv.indexOf(id) >= 0;
+
+function clockText(){
+  const t = 2 * 60 + S.min;
+  return pad2(Math.floor(t / 60) % 24) + ':' + pad2(t % 60);
+}
+function give(id){
+  if(!has(id)){ S.inv.push(id); }
+}
+function tick(n){
+  S.min += (n || 1);
+  S.moves += 1;
+  renderHud();
+}
+function toast(msg){
+  const box = $('toasts');
+  if(!box) return;
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  box.appendChild(el);
+  if(typeof setTimeout === 'function'){
+    setTimeout(function(){ el.className = 'toast out'; }, 1700);
+    setTimeout(function(){ if(el && el.parentNode) el.parentNode.removeChild(el); }, 2050);
+  }
+}
+
+/* 가벼운 효과음 (WebAudio, 외부 파일 없음) */
+let AC = null;
+function sfx(kind){
+  if(S.muted) return;
+  try{
+    const Ctx = (typeof window !== 'undefined') && (window.AudioContext || window.webkitAudioContext);
+    if(!Ctx) return;
+    if(!AC) AC = new Ctx();
+    const t = AC.currentTime;
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    g.gain.setValueAtTime(0.0001, t);
+    if(kind === 'key'){ o.type='square'; o.frequency.setValueAtTime(880, t); g.gain.exponentialRampToValueAtTime(0.05, t+0.01); g.gain.exponentialRampToValueAtTime(0.0001, t+0.09); o.stop(t+0.1); }
+    else if(kind === 'ok'){ o.type='sine'; o.frequency.setValueAtTime(523, t); o.frequency.setValueAtTime(784, t+0.1); g.gain.exponentialRampToValueAtTime(0.08, t+0.02); g.gain.exponentialRampToValueAtTime(0.0001, t+0.36); o.stop(t+0.38); }
+    else if(kind === 'no'){ o.type='sawtooth'; o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(90, t+0.2); g.gain.exponentialRampToValueAtTime(0.06, t+0.01); g.gain.exponentialRampToValueAtTime(0.0001, t+0.22); o.stop(t+0.24); }
+    else { o.type='sine'; o.frequency.setValueAtTime(420, t); g.gain.exponentialRampToValueAtTime(0.04, t+0.01); g.gain.exponentialRampToValueAtTime(0.0001, t+0.14); o.stop(t+0.16); }
+    o.start(t);
+  }catch(e){}
+}
+
+/* 모달 노드 헬퍼 */
+function A(label, fn, cls){ return { label: label, fn: fn, cls: cls || '' }; }
+function C(label){ return { label: label || '닫는다', fn: closeModal, cls: 'ghost' }; }
+function N(title, icon, body, actions){
+  return { title: title, icon: icon || '', body: body || '', actions: actions || [] };
+}
+
+/* ══════════════════════════════════════════════
+   3. 렌더
+   ══════════════════════════════════════════════ */
+function render(){
+  renderHud();
+  renderScene();
+  renderInv();
+}
+function renderHud(){
+  $('hudClock').textContent = clockText();
+}
+function renderScene(){
+  if(S.scene === 'corridor'){ renderCorridor(); return; }
+  const sc = SCENES[S.scene];
+  $('sceneArt').innerHTML = sc.art;
+  $('sceneTitle').textContent = sc.title;
+  $('sceneSub').textContent = sc.sub;
+  $('sceneDesc').textContent = sc.desc;
+
+  $('objects').innerHTML = sc.objs.map(function(id){
+    const o = OBJS[id];
+    let b = BADGE[id] ? BADGE[id]() : '';
+    let cls = '';
+    if(b === '잠김' || b === '전원 꺼짐') cls = 'lock';
+    else if(b === '열림' || b === '점등' || b === '화면 켜짐') cls = 'ok';
+    return '<button class="obj" data-obj="' + id + '">' +
+             '<span class="oi">' + o.icon + '</span>' +
+             '<span class="on">' + o.name + '</span>' +
+             (b ? '<span class="ob ' + cls + '">' + b + '</span>' : '<span class="ob">&nbsp;</span>') +
+           '</button>';
+  }).join('');
+
+  $('exits').innerHTML = sc.exits.map(function(e){
+    return '<button class="exitBtn" data-goto="' + e.to + '"><span>' + e.icon + ' ' + e.label + '</span><span class="arrow">›</span></button>';
+  }).join('');
+}
+function renderInv(){
+  const box = $('inv');
+  if(!S.inv.length){
+    box.innerHTML = '<div class="chip empty">아직 아무것도 없다</div>';
+    return;
+  }
+  box.innerHTML = S.inv.map(function(id){
+    const it = ITEMS[id];
+    return '<button class="chip" data-item="' + id + '"><span class="ci">' + it.icon + '</span>' + it.short + '</button>';
+  }).join('');
+}
+function renderCorridor(){
+  $('sceneArt').innerHTML = '<div class="vStair"></div><div class="stamp">CAM 01 · B1</div><div class="rec"><i></i>REC</div>';
+  $('sceneTitle').textContent = '복도';
+  $('sceneSub').textContent = 'B1 · 문이 열렸다';
+  $('sceneDesc').textContent = '철문이 안쪽으로 열린다. 복도 끝, 비상계단의 초록 불이 희미하게 깜빡인다. 세 걸음이면 계단이다. 그런데 등 뒤, 경비실 안의 모니터가 아직 켜져 있다. 02:47. 카메라가 나를 비추고 있는 것 같다.';
+  $('objects').innerHTML = '';
+  $('exits').innerHTML =
+    '<button class="choice" data-end="A">계단으로 뛰어 올라간다<small>지금 당장, 아무것도 돌아보지 않고</small></button>' +
+    '<button class="choice" data-end="B">돌아서서 CCTV 화면을 확인한다<small>02:47 — 그 시각에 무언가 있다</small></button>';
+}
+
+/* ══════════════════════════════════════════════
+   4. 모달 · 키패드
+   ══════════════════════════════════════════════ */
+let modal = null;
+let PAD = null;
+
+function openModal(node){
+  modal = node;
+  renderModal();
+  const m = $('modal');
+  if(m) m.classList.remove('hidden');
+  if(document.body && document.body.classList) document.body.classList.add('lock');
+  const sh = $('sheet');
+  if(sh){
+    sh.classList.remove('in');
+    sh.classList.add('in');
+    sh.scrollTop = 0;
+  }
+}
+function closeModal(){
+  modal = null;
+  PAD = null;
+  const m = $('modal');
+  if(m) m.classList.add('hidden');
+  if(document.body && document.body.classList) document.body.classList.remove('lock');
+  render();
+}
+function renderModal(){
+  const sh = $('sheet');
+  if(!sh) return;
+  if(!modal){ sh.innerHTML = ''; return; }
+  let h = '';
+  if(modal.title || modal.icon){
+    h += '<div class="sheetHead">' +
+           '<span class="sheetIcon">' + (modal.icon || '') + '</span>' +
+           '<h3>' + (modal.title || '') + '</h3>' +
+           (modal.dismissible === false ? '' : '<button class="x" data-close="1" aria-label="닫기">✕</button>') +
+         '</div>';
+  }
+  h += '<div class="sheetBody">' + (modal.body || '') + '</div>';
+  if(modal.actions && modal.actions.length){
+    h += '<div class="sheetFoot">';
+    modal.actions.forEach(function(a, i){
+      h += '<button class="btn ' + (a.cls || '') + '" data-idx="' + i + '">' + a.label + '</button>';
+    });
+    h += '</div>';
+  }
+  sh.innerHTML = h;
+}
+
+/* ── 숫자 키패드 ── */
+function openPad(len, title, sub, onOk){
+  PAD = { len: len, val: '', title: title, sub: sub || '', err: '', onOk: onOk };
+  renderPad();
+}
+function padFail(msg){
+  PAD.err = msg || '자물쇠가 걸린다. 숫자를 다시 맞춰야 한다.';
+  PAD.val = '';
+  renderPad();
+  sfx('no');
+  const sh = $('sheet');
+  if(sh && sh.classList){ sh.classList.add('shake'); }
+  if(typeof setTimeout === 'function'){
+    setTimeout(function(){ const s = $('sheet'); if(s && s.classList) s.classList.remove('shake'); }, 360);
+  }
+}
+function renderPad(){
+  if(!PAD) return;
+  let cells = '';
+  for(let i = 0; i < PAD.len; i++){
+    const ch = PAD.val.charAt(i);
+    cells += '<span class="cell' + (ch ? ' on' : '') + '">' + (ch || '') + '</span>';
+  }
+  let grid = '';
+  const keys = ['1','2','3','4','5','6','7','8','9','⌫','0','확인'];
+  keys.forEach(function(k){
+    const cls = k === '확인' ? 'key ok' : (k === '⌫' ? 'key del' : 'key');
+    grid += '<button class="' + cls + '" data-pad="' + k + '">' + k + '</button>';
+  });
+  const body =
+    (PAD.sub ? '<p class="dim" style="text-align:center;margin-bottom:4px">' + PAD.sub + '</p>' : '') +
+    '<div class="padDisp">' + cells + '</div>' +
+    '<div class="padGrid">' + grid + '</div>' +
+    (PAD.err ? '<div class="padErr">' + PAD.err + '</div>' : '');
+  modal = { title: PAD.title, icon: '🔒', body: body, actions: [C('취소')] };
+  renderModal();
+  const m = $('modal');
+  if(m) m.classList.remove('hidden');
+}
+function padPress(k){
+  if(!PAD) return;
+  if(k === '⌫'){
+    PAD.val = PAD.val.slice(0, -1);
+    PAD.err = '';
+    renderPad();
+    sfx('key');
+    return;
+  }
+  if(k === '확인'){
+    if(PAD.val.length < PAD.len){
+      PAD.err = '자리 수가 모자란다.';
+      renderPad();
+      sfx('no');
+      return;
+    }
+    const val = PAD.val;
+    const ok = PAD.onOk(val);
+    if(ok === false) padFail();
+    return;
+  }
+  if(PAD.val.length >= PAD.len) return;
+  PAD.val += k;
+  PAD.err = '';
+  renderPad();
+  sfx('key');
+}
+
+/* ══════════════════════════════════════════════
+   5. 오브젝트 조사
+   ══════════════════════════════════════════════ */
+function examine(id){
+  const o = OBJS[id];
+  if(!o) return null;
+  tick(1);
+  const node = o.open();
+  openModal(node);
+  render();
+  return node;
+}
+
+/* ── 벽시계 ── */
+function openClock(){
+  if(!S.f.clockDown){
+    return N('벽시계', '🕰️',
+      '<p>3시 15분에서 멈춰 있다. 초침만 1초에 한 번, 아주 작게 떨린다. 유리에 손자국이 겹겹이 남아 있다.</p>' +
+      '<p class="dim">벽에 기대는 소리가 들릴 만큼 오래된 시계다.</p>',
+      [A('시계를 들어 내린다', takeClock, 'btn'), C()]);
+  }
+  return N('벽시계', '🕰️',
+    '<p>벽에는 못 하나와, 시계가 가려 주던 네모난 자국만 남았다.</p>' +
+    '<p class="dim">멈춘 시각 — 3시 15분. 뒷면의 글씨가 자꾸 마음에 걸린다. <em>“멈춘 시간은 거짓말하지 않는다.”</em></p>',
+    [C()]);
+}
+function takeClock(){
+  S.f.clockDown = true;
+  give('key');
+  tick(1);
+  sfx('ok');
+  toast('은색 열쇠를 얻었다');
+  render();
+  openModal(N('벽시계', '🕰️',
+    '<p>걸쇠가 생각보다 쉽게 풀렸다. 시계를 뒤집자 테이프로 붙여 둔 작은 은색 열쇠가 툭 떨어진다.</p>' +
+    '<p>뒷면에는 볼펜으로 눌러 쓴 글씨가 있다.</p>' +
+    '<div class="q">“멈춘 시간은 거짓말하지 않는다.”</div>' +
+    '<p class="dim">바늘은 여전히 3시 15분을 가리키고 있다.</p>',
+    [A('열쇠를 챙긴다', closeModal, 'btn')]));
+}
+
+/* ── 책상 서랍 ── */
+function openDrawer(){
+  if(S.f.drawerOpen){
+    return N('책상 서랍', '🗂️',
+      '<p>서랍은 비었다. 바닥에 커피 얼룩과, 오래된 볼펜 자국만 남아 있다.</p>' +
+      '<p class="dim">안쪽 모서리에 이름이 하나 새겨져 있다. 긁어 지운 흔적이 선명하다.</p>',
+      [C()]);
+  }
+  if(!has('key')){
+    return N('책상 서랍', '🗂️',
+      '<p>철제 서랍. 손잡이 아래에 작은 자물쇠가 채워져 있다. 손으로 흔들어 보지만 꿈쩍도 하지 않는다.</p>' +
+      '<p class="dim">열쇠가 어딘가에 있을 것 같다.</p>',
+      [A('자물쇠를 흔들어 본다', function(){ toast('꿈쩍도 하지 않는다'); }, 'btn ghost'), C()]);
+  }
+  return N('책상 서랍', '🗂️',
+    '<p>작은 자물쇠에 은색 열쇠가 딱 맞는다. 찰칵 — 서랍이 반쯤 열린다.</p>' +
+    '<p class="dim">안쪽은 생각보다 정갈하다. 누군가 최근까지 이 서랍을 정리했다.</p>',
+    [A('서랍을 연다', unlockDrawer, 'btn'), C()]);
+}
+function unlockDrawer(){
+  S.f.drawerOpen = true;
+  give('torch'); give('memoA'); give('logbook');
+  tick(2);
+  sfx('ok');
+  toast('손전등 · 메모(앞) · 경비 일지');
+  render();
+  openModal(N('책상 서랍', '🗂️',
+    '<p>서랍 안에는 세 가지가 들어 있었다.</p>' +
+    '<ul>' +
+      '<li><b>손전등</b> — 무겁고 낡았다. 옆면 스위치가 두 개다.</li>' +
+      '<li><b>가로로 찢긴 메모</b> — 관리인의 악필. 여백이 이상하게 넓다.</li>' +
+      '<li><b>경비 일지</b> — 마지막 장까지 거의 다 채워져 있다.</li>' +
+    '</ul>' +
+    '<p class="dim">메모의 반대쪽 조각은 여기 없다.</p>',
+    [A('경비 일지를 펼친다', function(){ openModal(openLogbook()); }, 'btn'), A('메모를 살펴본다', function(){ openModal(openMemo('A')); }, 'btn ghost'), C('닫는다')]));
+}
+
+/* ── 경비 일지 ── */
+function openLogbook(){
+  return N('경비 일지', '📒',
+    '<p>표지가 너덜너덜하다. 대부분은 순찰 시간과 “이상 없음”의 반복이다.</p>' +
+    '<div class="doc"><h4>마지막 장</h4>' +
+    '<p>11월 15일 22:10 — 근무 인수. 야간 2인.<br>' +
+    '11월 16일 01:40 — 순찰 1회. 이상 없음.<br>' +
+    '11월 16일 02:47 — 복도 쪽에서 발소리. 순찰 2회. <em>아무도 없음.</em><br>' +
+    '11월 16일 02:47 — 다시 적는다. 없음.</p></div>' +
+    '<p class="dim">날짜가 오늘이다. 그리고 마지막 두 줄의 시각이 똑같다. 잉크가 아직 마르지 않은 것처럼 번들거린다.</p>',
+    [C()]);
+}
+
+/* ── 메모 ── */
+function openMemo(which){
+  const isA = which === 'A';
+  const id = isA ? 'memoA' : 'memoB';
+  const rev = isA ? S.f.uvA : S.f.uvB;
+  const text = isA
+    ? '<p>가로로 찢긴 종이 조각. 관리인의 악필이 비뚤게 이어진다.</p>' +
+      '<div class="q">“…비밀번호는 네 자리. 앞의 두 자리는 이 종이에, 뒤의 두 자리는 다른 조각에 두었다. <b>자외선 아래에서만</b> 보인다. 종이를 버리지는 마라.”</div>' +
+      '<p class="dim">잉크가 번져 그 아래 문장은 읽을 수 없다. 여백이 넓고, 아무것도 쓰이지 않았다.</p>'
+    : '<p>세로로 찢긴 종이 조각. 같은 악필.</p>' +
+      '<div class="q">“…뒤의 두 자리. 이 조각만으로는 아무것도 열리지 않는다. 네 자리를 모아야 한다. 사흘 밤을 세며 적어 둔다.”</div>' +
+      '<p class="dim">뒷면은 빈 종이처럼 보인다.</p>';
+  const actions = [];
+  if(rev){
+    actions.push(C('닫는다'));
+    return N(ITEMS[id].name, ITEMS[id].icon,
+      text + '<div class="uv">' + (isA ? '7 3' : '1 8') + '</div><div class="uvNote">UV · ' + (isA ? '앞의 두 자리' : '뒤의 두 자리') + '</div>',
+      actions);
+  }
+  if(has('torch')){
+    actions.push(A('손전등으로 자외선을 비춘다', function(){ uvReveal(which); }, 'btn'));
+  }else{
+    actions.push(A('자외선이 필요할 것 같다', function(){ toast('자외선을 낼 수 있는 것이 필요하다'); }, 'btn ghost'));
+  }
+  actions.push(C());
+  return N(ITEMS[id].name, ITEMS[id].icon, text, actions);
+}
+function uvReveal(which){
+  const isA = which === 'A';
+  S.f[isA ? 'uvA' : 'uvB'] = true;
+  tick(1);
+  sfx('ok');
+  render();
+  openModal(N((isA ? '찢어진 메모 (앞)' : '찢어진 메모 (뒤)'), '🔦',
+    '<p>스위치를 두 번 누르자 보랏빛이 번진다. 종이가 보랏빛으로 반짝이고, 아무것도 없던 여백에서 숫자가 떠오른다.</p>' +
+    '<div class="uv">' + (isA ? '7 3' : '1 8') + '</div>' +
+    '<div class="uvNote">UV · ' + (isA ? '앞의 두 자리' : '뒤의 두 자리') + '</div>' +
+    '<p class="dim">불을 끄면 다시 아무것도 보이지 않는다.</p>',
+    [C()]));
+}
+
+/* ── CCTV 모니터 ── */
+function openMonitor(){
+  if(!S.f.cableFixed){
+    return N('CCTV 모니터', '📺',
+      '<p>낡은 CRT 모니터. 화면에는 눈보라가 지고 있다. 본체 뒤로 케이블 하나가 뽑혀 바닥에 늘어져 있다.</p>' +
+      '<p class="dim">선이 완전히 끊긴 건 아니다. 다시 꽂으면 살아날 것 같다.</p>',
+      [A('케이블을 다시 꽂는다', fixCable, 'btn'), C()]);
+  }
+  return N('CCTV 모니터', '📺',
+    '<p>화면이 살아 있다. 카메라는 창고를 비추고 있고, 구석에 시각이 찍혀 있다.</p>' +
+    '<div class="q">02:47 — 화면이 그 시각에서 멈춰 있다. 지금 몇 시든 상관없이.</div>' +
+    '<p class="dim">선반 위, 낡은 상자 하나가 희미하게 빛난다. 화면을 끄려 해도 꺼지지 않는다.</p>',
+    [A('화면을 다시 확인한다', function(){
+        tick(1);
+        openModal(N('CCTV 모니터', '📺',
+          '<p>같은 장면. 같은 시각. 움직이는 것은 없다.</p>' +
+          '<p class="dim">그런데 화면 오른쪽, 복도 카메라로 전환되는 순간 — 이 방이 비친다. 의자가 하나, 비어 있다.</p>',
+          [C()]));
+      }, 'btn ghost'), C('닫는다')]);
+}
+function fixCable(){
+  S.f.cableFixed = true;
+  S.f.boxSeen = true;
+  tick(2);
+  sfx('ok');
+  toast('창고 CCTV가 켜졌다');
+  render();
+  openModal(N('CCTV 모니터', '📺',
+    '<p>지직— 접점이 붙는 소리와 함께 화면이 살아난다.</p>' +
+    '<p>카메라는 창고를 비추고 있다. 화면 아래 시각은 <em>02:47</em>에서 멈춰 있다. 선반 위, 낡은 상자 하나가 다른 것들보다 눈에 띄게 밝다.</p>' +
+    '<p class="dim">그 순간, 구석의 복도 카메라에 검은 형체가 스쳐 지나갔다. 고개를 돌리자 화면은 다시 눈보라가 된다.</p>',
+    [A('상자의 위치를 기억한다', closeModal, 'btn')]));
+}
+
+/* ── 게시판 ── */
+function openBoard(){
+  return N('게시판', '📌',
+    '<p>오래된 코르크 게시판. 압정이 여기저기 빠져 있다.</p>' +
+    '<div class="doc"><h4>근무표</h4><p>11월 16일(월) 야간 — <b>2인</b>. 순찰 2회. 01:40 / 02:40.</p></div>' +
+    '<div class="doc"><h4>손글씨 메모</h4><p>“<em>캐비닛은 멈춘 시간을 기억한다.</em> 세 자리. 잊지 마라.”</p></div>' +
+    '<div class="doc"><h4>폐쇄 공고</h4><p>11월 16일 자로 지하 경비실 운영을 종료한다. 야간 근무자는 마지막 순찰 후 출입 카드를 반납할 것. — 관리사무소</p></div>' +
+    '<p class="dim">폐쇄 공고의 날짜가 오늘이다. 그리고 근무표에는 2인이라고 적혀 있는데, 이 방에는 의자가 하나뿐이다.</p>',
+    [C()]);
+}
+
+/* ── 전화기 ── */
+function openPhone(){
+  return N('전화기', '☎️',
+    '<p>버튼식 전화기. 수화기를 들어도 아무 소리도 나지 않는다.</p>' +
+    '<p>선을 따라가 보니 벽에서 나온 지점이 <em>칼로 자른 것처럼</em> 깔끔하게 끊겨 있다.</p>' +
+    '<p class="dim">누군가 이 방에서 바깥으로 나가는 길을 미리 정리해 둔 것 같다.</p>',
+    [C()]);
+}
+
+/* ── 출입문 키패드 ── */
+function openKeypad(){
+  if(S.f.doorOpen){
+    return N('출입문 키패드', '🔢', '<p>문은 열려 있다.</p>', [C()]);
+  }
+  if(!has('card')){
+    return N('출입문 키패드', '🔢',
+      '<p>출입문 옆 4자리 키패드. 화면이 꺼져 있고, 아래쪽 카드 리더기에도 불이 들어오지 않는다.</p>' +
+      '<p>문을 두드려 보지만, 안쪽에서 잠긴 문은 소리만 되돌려 준다.</p>' +
+      '<p class="dim">리더기 틈에 먼지가 끼어 있다. 카드를 넣어야 할 것 같다.</p>',
+      [A('카드 리더를 살펴본다', function(){ toast('카드가 필요하다'); }, 'btn ghost'), C()]);
+  }
+  if(!S.f.doorPowered){
+    return N('출입문 키패드', '🔢',
+      '<p>출입 카드가 손안에 있다. 키패드 아래 카드 리더기는 아직 꺼져 있다.</p>' +
+      '<p class="dim">리더기 홈이 카드 크기와 딱 맞는다.</p>',
+      [A('출입 카드를 리더에 넣는다', powerDoor, 'btn'), C()]);
+  }
+  return N('출입문 키패드', '🔢',
+    '<p>키패드에 초록 불이 들어와 있다. 네 자리.</p>',
+    [A('키패드를 조작한다', openDoorPad, 'btn'), C()]);
+}
+function powerDoor(){
+  if(!S.f.doorPowered){
+    S.f.doorPowered = true;
+    tick(2);
+    sfx('ok');
+    toast('카드 리더 점등');
+    render();
+    openModal(N('출입문 키패드', '🔢',
+      '<p>카드를 밀어 넣자 삑— 소리와 함께 초록 불이 들어온다.</p>' +
+      '<p>키패드가 켜진다. <em>네 자리</em>. 머릿속에서 메모 두 조각이 겹친다.</p>',
+      [A('네 자리를 입력한다', openDoorPad, 'btn'), C('나중에')]));
+    return;
+  }
+  openDoorPad();
+}
+function openDoorPad(){
+  openPad(4, '출입문 키패드', '네 자리를 입력한다', function(v){
+    if(v === CODE_DOOR){ doorOpen(); return true; }
+    return false;
+  });
+}
+function doorOpen(){
+  S.f.doorOpen = true;
+  closeModal();
+  tick(1);
+  sfx('ok');
+  S.scene = 'corridor';
+  render();
+}
+
+/* ── 캐비닛 ── */
+function openCabinet(){
+  if(S.f.cabinetOpen){
+    return N('철제 캐비닛', '🗄️',
+      '<p>캐비닛은 열려 있다. 안에는 옷걸이 몇 개와, 곰팡이 낀 방한복만 남아 있다.</p>' +
+      '<p class="dim">문 안쪽에 손으로 쓴 글씨가 긁혀 있다. “세 번째 사람은 기록되지 않는다.”</p>',
+      [C()]);
+  }
+  return N('철제 캐비닛', '🗄️',
+    '<p>1230×900 철제 캐비닛. 세 자리 다이얼 자물쇠가 달려 있고, 손잡이에는 먼지 대신 손자국이 남아 있다.</p>' +
+    '<p class="dim">자물쇠의 다이얼은 아직 잘 돌아간다.</p>',
+    [A('자물쇠를 조작한다', function(){
+        openPad(3, '철제 캐비닛', '세 자리 다이얼 자물쇠', function(v){
+          if(v === CODE_CABINET){ cabinetUnlocked(); return true; }
+          return false;
+        });
+      }, 'btn'), C()]);
+}
+function cabinetUnlocked(){
+  S.f.cabinetOpen = true;
+  give('card'); give('photo');
+  tick(2);
+  sfx('ok');
+  toast('출입 카드 · 낡은 단체사진');
+  render();
+  openModal(N('철제 캐비닛', '🗄️',
+    '<p>찰칵. 다이얼이 315에서 멈추고 문이 열린다.</p>' +
+    '<p>안에는 두 가지가 걸려 있었다.</p>' +
+    '<ul>' +
+      '<li><b>출입 카드</b> — 이름 없이 “야간 경비”라고만 인쇄되어 있다.</li>' +
+      '<li><b>낡은 단체사진</b> — 2003년 11월 16일, 경비실 앞. 세 사람.</li>' +
+    '</ul>' +
+    '<p class="dim">사진 가운데 인물의 얼굴이 손톱으로 긁혀 있다. 뒷면에 볼펜 글씨 — <em>“우리 셋. 마지막 날.”</em></p>',
+    [C()]));
+}
+
+/* ── 선반 ── */
+function openShelf(){
+  if(S.f.boxTaken){
+    return N('선반', '📦',
+      '<p>세 칸짜리 철제 선반. 낡은 상자는 이제 비어 있다.</p>' +
+      '<p class="dim">바닥에 곰팡이 낀 신문지가 깔려 있다. 날짜는 2003년 11월 16일.</p>',
+      [C()]);
+  }
+  if(!S.f.boxSeen){
+    return N('선반', '📦',
+      '<p>먼지가 두껍게 쌓인 세 칸짜리 선반. 상자와 낡은 방한복, 깨진 형광등이 어지럽게 놓여 있다.</p>' +
+      '<p class="dim">상자가 여럿이라 어느 것을 열어야 할지 모르겠다. 창고를 비추는 카메라가 어딘가에 있을 텐데.</p>',
+      [C()]);
+  }
+  return N('선반', '📦',
+    '<p>세 번째 칸, 모서리가 눌린 낡은 상자. CCTV 화면에서 유난히 밝게 빛나던 그것이다.</p>' +
+    '<p class="dim">뚜껑이 반쯤 열려 있다.</p>',
+    [A('상자를 연다', openBox, 'btn'), C()]);
+}
+function openBox(){
+  S.f.boxTaken = true;
+  give('memoB');
+  tick(2);
+  sfx('ok');
+  toast('찢어진 메모 (뒤)를 얻었다');
+  render();
+  openModal(N('낡은 상자', '📦',
+    '<p>뚜껑을 열자 먼지가 훅 끼친다. 안에는 세로로 찢긴 종이 조각 하나와, 곰팡이 낀 신문지가 전부다.</p>' +
+    '<p class="dim">신문지 날짜 — 2003년 11월 16일. 20년 전 오늘이다.</p>',
+    [A('메모를 살펴본다', function(){ openModal(openMemo('B')); }, 'btn'), C('닫는다')]));
+}
+
+/* ══════════════════════════════════════════════
+   6. 힌트
+   ══════════════════════════════════════════════ */
+const HINTS = {
+  key: [
+    '방 안에서 “움직일 수 있는 것”부터 찾아보자. 벽에 걸린 것도 옮길 수 있다.',
+    '벽시계는 3시 15분에서 멈춰 있다. 시계를 들어 내려 보면 뒤에서 뭔가 떨어진다.',
+    '벽시계 → [시계를 들어 내린다] → 은색 열쇠를 얻는다.'
+  ],
+  drawer: [
+    '손에 작은 열쇠가 하나 있다. 이 방에서 자물쇠가 달린 곳은 어디였나?',
+    '책상 서랍 손잡이 아래에 작은 자물쇠가 채워져 있다.',
+    '책상 서랍 → [은색 열쇠로 연다] → 손전등 · 메모(앞) · 경비 일지.'
+  ],
+  cabinet: [
+    '게시판의 손글씨를 읽어 봤나? “캐비닛은 멈춘 시간을 기억한다.”',
+    '이 방에서 “멈춘 시간”은 하나뿐이다. 3시 15분 — 세 자리.',
+    '창고 캐비닛 자물쇠에 3 · 1 · 5 를 차례로 넣고 [확인].'
+  ],
+  cctv: [
+    '모니터는 켜지지 않는다. 본체 뒤쪽 케이블이 뽑혀 있지 않던가?',
+    'CCTV를 살리면 창고가 보인다. 선반 위, 유난히 밝은 상자 하나.',
+    'CCTV 모니터 → [케이블을 다시 꽂는다] → 창고 선반 → [상자를 연다].'
+  ],
+  uv: [
+    '손전등 옆면 스위치가 두 개다. 두 번 누르면 자외선이 나온다.',
+    '메모 두 조각을 각각 열어 [자외선을 비춘다]를 눌러 보자. 조각마다 두 자리씩.',
+    '앞 조각 7 3 · 뒤 조각 1 8 → 네 자리 7318.'
+  ],
+  door: [
+    '키패드는 아직 꺼져 있다. 카드 리더부터 살려야 한다.',
+    '출입 카드를 리더에 넣고, 메모 두 조각에서 모은 네 자리를 입력한다.',
+    '출입문 키패드 → [출입 카드를 리더에 넣는다] → [네 자리를 입력한다] → 7 · 3 · 1 · 8.'
+  ]
+};
+function currentStage(){
+  if(S.f.doorOpen) return 'door';
+  if(!has('key')) return 'key';
+  if(!S.f.drawerOpen) return 'drawer';
+  if(!S.f.cabinetOpen) return 'cabinet';
+  if(!has('memoB')) return 'cctv';
+  if(!(S.f.uvA && S.f.uvB)) return 'uv';
+  return 'door';
+}
+function showHint(){
+  if(S.scene === 'corridor'){
+    openModal(N('복도', '💡',
+      '<p>문은 이미 열렸다. 남은 것은 선택뿐이다.</p>' +
+      '<p class="dim">한쪽은 탈출, 한쪽은 진실. 어느 쪽을 골라도 이 이야기는 끝난다. 엔딩을 바꾸고 싶다면 [복도로 돌아가기]로 다시 서 보면 된다.</p>',
+      [C()]));
+    return;
+  }
+  const st = currentStage();
+  const list = HINTS[st] || HINTS.key;
+  const pos = Math.min(S.hintPos[st] || 0, list.length - 1);
+  S.hintCount += 1;
+  S.hintPos[st] = Math.min(pos + 1, list.length - 1);
+  const more = pos < list.length - 1;
+  const lvl = ['힌트 1 · 가볍게', '힌트 2 · 조금 더', '힌트 3 · 정답 공개'][pos] || '힌트';
+  const actions = [];
+  if(more) actions.push(A('힌트를 조금 더 본다', showHint, 'btn'));
+  actions.push(C(more ? '이만큼이면 되겠다' : '닫는다'));
+  openModal(N(lvl, '💡', '<p style="font-size:14.5px;line-height:1.8">' + list[pos] + '</p>', actions));
+}
+
+/* ══════════════════════════════════════════════
+   7. 엔딩
+   ══════════════════════════════════════════════ */
+const ENDINGS = {
+  A: {
+    tag:'ENDING A', title:'봉인 해제',
+    body:
+      '<p>계단을 두 칸씩 뛰어 올라간다. 등 뒤에서 철문이 스스로 닫히고, 오래된 자물쇠가 돌아가는 소리가 길게 이어졌다.</p>' +
+      '<p>1층 로비. 새벽 공기가 뺨에 닿는다. 한 번만 뒤를 돌아보았다. 지하로 내려가는 계단참의 불이 — 분명히 꺼져 있었는데, 켜져 있다.</p>' +
+      '<p>그리고 그 아래, 아무도 없어야 할 복도에서 발소리가 하나, 둘, 천천히 올라오고 있었다.</p>' +
+      '<p class="dim">오전 6시. 건물은 예정대로 문을 닫았다. 그날의 마지막 야간 근무자는 기록되지 않았다.</p>'
+  },
+  B: {
+    tag:'ENDING B', title:'세 번째 사람',
+    body:
+      '<p>돌아서서 CCTV 화면을 다시 확인한다. 눈보라가 걷히고 — 화면에 비친 것은 창고가 아니라 이 경비실이다. 내가 앉았던 의자. 그 옆에 서 있는 사람.</p>' +
+      '<p>얼굴이 긁힌 사진 속 그 남자다. 화면 속 시각은 여전히 02:47. 그리고 그가 아주 천천히, 카메라를 바라본다.</p>' +
+      '<p>책상 위 경비 일지의 마지막 장을 넘기자, 잉크가 방금 마른 듯한 글씨가 있다.</p>' +
+      '<div class="q">“11월 16일 02:47 — 세 번째 경비, 마지막 순찰을 마침.”</div>' +
+      '<p>그 위에 내 이름이 적혀 있다. 2003년부터 이 경비실은 매년 오늘, 새로운 경비를 한 명씩 들여왔다.</p>' +
+      '<p class="dim">문이 스스로 열린다. 나가라는 뜻은 아니었다. 자리를 비켜 주라는 뜻이었다.</p>'
+  }
+};
+function chooseEnding(k){
+  S.ended = k;
+  sfx('ok');
+  const e = ENDINGS[k];
+  openModal({
+    title: '', icon: '', dismissible: false,
+    body:
+      '<div class="endTag">' + e.tag + '</div>' +
+      '<div class="endTitle">' + e.title + '</div>' +
+      '<div class="endBody">' + e.body + '</div>' +
+      '<div class="stats">' +
+        '<div class="statBox"><b>' + clockText() + '</b><span>탈출 시각</span></div>' +
+        '<div class="statBox"><b>' + S.min + '분</b><span>경과 시간</span></div>' +
+        '<div class="statBox"><b>' + S.moves + '</b><span>행동</span></div>' +
+        '<div class="statBox"><b>' + S.hintCount + '</b><span>힌트</span></div>' +
+      '</div>',
+    actions: [
+      A('복도로 돌아가기', function(){ S.ended = null; closeModal(); render(); }, 'btn ghost'),
+      A('처음부터 다시', restart, 'btn')
+    ]
+  });
+}
+
+/* ══════════════════════════════════════════════
+   8. 흐름 제어
+   ══════════════════════════════════════════════ */
+function resetState(){
+  S.min = 0;
+  S.moves = 0;
+  S.scene = 'office';
+  S.inv = [];
+  S.f = {};
+  S.hintCount = 0;
+  S.hintPos = {};
+  S.ended = null;
+}
+function restart(){
+  resetState();
+  S.started = false;
+  closeModal();
+  render();
+  const intro = $('intro');
+  if(intro) intro.classList.remove('hidden');
+}
+function startGame(){
+  const intro = $('intro');
+  if(intro) intro.classList.add('hidden');
+  S.started = true;
+  render();
+}
+function goto(scene){
+  if(!SCENES[scene]) return;
+  S.scene = scene;
+  tick(1);
+  render();
+}
+
+/* ══════════════════════════════════════════════
+   9. 이벤트 배선
+   ══════════════════════════════════════════════ */
+function wire(){
+  const on = function(el, ev, fn){ if(el && el.addEventListener) el.addEventListener(ev, fn); };
+
+  on($('btnStart'), 'click', startGame);
+  on($('btnHint'), 'click', showHint);
+  on($('btnRestart'), 'click', askRestart);
+  on($('btnSound'), 'click', function(){
+    S.muted = !S.muted;
+    $('btnSound').textContent = S.muted ? '🔇' : '🔊';
+    if(!S.muted) sfx('ok');
+  });
+
+  on($('objects'), 'click', function(e){
+    const t = e.target;
+    const btn = t && t.closest ? t.closest('[data-obj]') : null;
+    if(!btn) return;
+    examine(btn.getAttribute('data-obj'));
+  });
+
+  on($('exits'), 'click', function(e){
+    const t = e.target;
+    const g = t && t.closest ? t.closest('[data-goto]') : null;
+    if(g){ goto(g.getAttribute('data-goto')); return; }
+    const d = t && t.closest ? t.closest('[data-end]') : null;
+    if(d){ chooseEnding(d.getAttribute('data-end')); }
+  });
+
+  on($('inv'), 'click', function(e){
+    const t = e.target;
+    const c = t && t.closest ? t.closest('[data-item]') : null;
+    if(c) openItem(c.getAttribute('data-item'));
+  });
+
+  on($('sheet'), 'click', function(e){
+    const t = e.target;
+    if(!t || !t.closest) return;
+    if(t.closest('[data-close]')){
+      if(modal && modal.dismissible === false) return;
+      closeModal();
+      return;
+    }
+    const k = t.closest('[data-pad]');
+    if(k){ padPress(k.getAttribute('data-pad')); return; }
+    const b = t.closest('[data-idx]');
+    if(b){
+      const i = Number(b.getAttribute('data-idx'));
+      if(modal && modal.actions && modal.actions[i]){
+        const fn = modal.actions[i].fn;
+        if(typeof fn === 'function') fn();
+      }
+    }
+  });
+
+  on($('modal'), 'click', function(e){
+    if(e.target === $('modal') && modal && modal.dismissible !== false) closeModal();
+  });
+
+  on(document, 'keydown', function(e){
+    if(!PAD) return;
+    if(e.key >= '0' && e.key <= '9'){ padPress(e.key); }
+    else if(e.key === 'Backspace'){ padPress('⌫'); }
+    else if(e.key === 'Enter'){ padPress('확인'); }
+  });
+}
+
+function openItem(id){
+  const it = ITEMS[id];
+  if(!it) return;
+  if(id === 'logbook'){ openModal(openLogbook()); return; }
+  if(id === 'memoA' || id === 'memoB'){ openModal(openMemo(id === 'memoA' ? 'A' : 'B')); return; }
+  const actions = [];
+  if(id === 'torch'){
+    if(has('memoA') && !S.f.uvA) actions.push(A('자외선을 메모(앞)에 비춘다', function(){ uvReveal('A'); }, 'btn'));
+    if(has('memoB') && !S.f.uvB) actions.push(A('자외선을 메모(뒤)에 비춘다', function(){ uvReveal('B'); }, 'btn'));
+    if(!actions.length) actions.push(A('자외선을 켜 본다', function(){ toast('비출 것이 없다'); }, 'btn ghost'));
+  }
+  if(id === 'key' && !S.f.drawerOpen && S.scene === 'office'){
+    actions.push(A('책상 서랍 자물쇠에 맞춰 본다', function(){ examine('drawer'); }, 'btn'));
+  }
+  if(id === 'card' && !S.f.doorOpen && S.scene === 'office'){
+    actions.push(A('키패드 카드 리더에 넣어 본다', function(){ examine('keypad'); }, 'btn'));
+  }
+  if(id === 'photo' || id === 'logbook'){
+    /* 안내만 */
+  }
+  actions.push(C());
+  openModal(N(it.name, it.icon, '<p>' + it.desc + '</p>', actions));
+}
+
+function askRestart(){
+  openModal(N('처음부터 다시', '⟲',
+    '<p>지금까지의 단서와 진행이 모두 사라진다. 새벽 2시로 돌아간다.</p>',
+    [A('처음부터 다시 시작', restart, 'btn danger'), C('계속하기')]));
+}
+
+/* ══════════════════════════════════════════════
+   10. 시작
+   ══════════════════════════════════════════════ */
+function init(){
+  wire();
+  render();
+}
+init();
+</script>
+</body>
+</html>
